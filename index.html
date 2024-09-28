@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz : Gestion des Flux de Trésorerie et Prévisions Financières</title>
+    <style>
+        body {
+            font-family: 'Mayan', sans-serif;
+            margin: 0;
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #333;
+            text-align: center;
+        }
+        .quiz-container, .summary {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            background-image: url('images/back.jpg.webp');
+            background-size: cover;
+            background-position: center;
+        }
+        .question {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #000;
+        }
+        .choices {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+            margin-left: 20%;
+        }
+        .choices li {
+            margin: 8px 0;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #FF0000;
+            color: white;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #CC0000;
+        }
+        .summary {
+            display: none;
+        }
+        .summary ul {
+            list-style: none;
+            padding: 0;
+        }
+        .summary li {
+            text-align: left;
+            margin-left: 20%;
+            margin-bottom: 10px;
+        }
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+        .incorrect {
+            color: red;
+            font-weight: bold;
+        }
+        .score {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            .quiz-container, .summary {
+                max-width: 90%;
+                margin: 20px auto;
+                padding: 15px;
+                border-radius: 10px;
+            }
+            button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+        }
+        @media (max-width: 480px) {
+            .quiz-container, .summary {
+                padding: 10px;
+                margin: 10px;
+                border-radius: 10px;
+            }
+            .question {
+                font-size: 16px;
+            }
+            button {
+                font-size: 12px;
+                padding: 6px 12px;
+                border-radius: 10px;
+            }
+        }
+        @media (min-width: 1024px) {
+            .quiz-container, .summary {
+                max-width: 800px;
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container" id="quiz-container">
+    <h2>QCM ENTRAINEMENT - Gestion des Flux de Trésorerie et Prévisions Financières</h2>
+    <div id="question-container">
+        <!-- Les questions seront affichées ici dynamiquement -->
+    </div>
+    <button id="next-button" onclick="nextQuestion()">Suivant</button>
+</div>
+
+<div class="summary" id="summary">
+    <h3>Récapitulatif</h3>
+    <ul id="summary-list">
+        <!-- Le récapitulatif des réponses sera affiché ici -->
+    </ul>
+    <div class="score" id="score"></div>
+    <button onclick="restartQuiz()">Recommencer</button>
+</div>
+
+<script>
+    const quizData = [
+        { question: "Qu'est-ce qu'un flux de trésorerie ?", choices: ["Une dette à court terme", "Un mouvement d'argent entrant ou sortant de l'entreprise", "Une immobilisation financière", "Une charge non monétaire"], correct: 1 },
+        { question: "Exemple : Si Dorian reçoit 10 000 € de ventes et doit payer 3 000 € de charges, quel est son flux de trésorerie net ?", choices: ["13 000 €", "7 000 €", "3 000 €", "10 000 €"], correct: 1 },
+        { question: "Qu'est-ce qu'un flux de trésorerie d'exploitation ?", choices: ["Un flux lié aux activités courantes de l'entreprise, comme les ventes et achats", "Un flux lié à l'investissement dans des actifs", "Un flux lié au financement externe", "Un flux provenant des revenus financiers"], correct: 0 },
+        { question: "Comment une entreprise peut-elle améliorer ses flux de trésorerie ?", choices: ["En augmentant ses charges fixes", "En réduisant ses délais de paiement clients et en négociant des conditions fournisseurs plus favorables", "En augmentant son ratio d'endettement", "En réduisant ses stocks"], correct: 1 },
+        { question: "Exemple : Joséphine décide de renégocier les délais de paiement de ses fournisseurs pour améliorer ses flux de trésorerie. Quelle conséquence peut-elle attendre ?", choices: ["Une diminution des flux d'investissement", "Une amélioration des flux d'exploitation", "Une augmentation des dettes à court terme", "Un flux de financement plus élevé"], correct: 1 },
+        { question: "Qu'est-ce qu'un flux de trésorerie de financement ?", choices: ["Un flux lié aux activités de financement comme les emprunts ou les levées de fonds", "Un flux lié aux achats d'actifs", "Un flux lié à la gestion des stocks", "Un flux lié à la vente d'immobilisations"], correct: 0 },
+        { question: "Exemple : Dorian emprunte 50 000 € pour financer son entreprise. Ce montant sera classé dans quel type de flux de trésorerie ?", choices: ["Flux d'exploitation", "Flux d'investissement", "Flux de financement", "Flux passif"], correct: 2 },
+        { question: "Quelle est la différence entre un flux de trésorerie d'investissement et un flux de trésorerie de financement ?", choices: ["Le flux d'investissement concerne l'achat et la vente d'actifs, tandis que le flux de financement concerne les emprunts et les fonds propres", "Le flux d'investissement concerne uniquement les fonds propres", "Le flux de financement inclut les investissements en stocks", "Le flux d'investissement est un flux passif"], correct: 0 },
+        { question: "Comment se calcule le besoin en fonds de roulement (BFR) ?", choices: ["Actifs circulants - passifs circulants", "Actifs immobilisés / passifs à court terme", "Capitaux propres - dette à long terme", "Chiffre d'affaires - flux de trésorerie"], correct: 0 },
+        { question: "Exemple : Joséphine a 80 000 € d'actifs circulants et 60 000 € de passifs à court terme. Quel est son BFR ?", choices: ["20 000 €", "140 000 €", "60 000 €", "80 000 €"], correct: 0 },
+        { question: "Qu'est-ce que la trésorerie nette représente ?", choices: ["Le montant d'argent liquide immédiatement disponible après avoir couvert les dettes à court terme", "Le total des flux de trésorerie sur une année", "Les immobilisations financières à long terme", "Le capital investi dans l'entreprise"], correct: 0 },
+        { question: "Exemple : Dorian termine le mois avec 30 000 € de liquidités et 20 000 € de dettes à court terme. Quelle est sa trésorerie nette ?", choices: ["50 000 €", "10 000 €", "30 000 €", "20 000 €"], correct: 1 },
+        { question: "Pourquoi la gestion des flux de trésorerie est-elle cruciale pour une entreprise ?", choices: ["Pour maximiser les profits", "Pour garantir la solvabilité de l'entreprise et éviter les difficultés de paiement", "Pour augmenter les charges d'exploitation", "Pour maximiser les investissements en stocks"], correct: 1 },
+        { question: "Qu'est-ce que le ratio de liquidité immédiate mesure ?", choices: ["La capacité de l'entreprise à rembourser ses dettes avec ses liquidités immédiates", "Le rendement des actifs à long terme", "La valeur des immobilisations financières", "La performance des flux d'investissement"], correct: 0 },
+        { question: "Exemple : Joséphine a 15 000 € de trésorerie et doit rembourser 10 000 € de dettes à court terme. Quel est son ratio de liquidité immédiate ?", choices: ["1,5", "0,5", "2", "1"], correct: 0 }
+    ];
+
+    let currentQuestionIndex = 0;
+    let selectedAnswers = [];
+
+    function loadQuestion() {
+        const container = document.getElementById('question-container');
+        container.innerHTML = '';
+
+        const questionData = quizData[currentQuestionIndex];
+        const questionElem = document.createElement('div');
+        questionElem.className = 'question';
+        questionElem.textContent = questionData.question;
+
+        const choicesElem = document.createElement('ul');
+        choicesElem.className = 'choices';
+
+        questionData.choices.forEach((choice, index) => {
+            const choiceElem = document.createElement('li');
+            const choiceInput = document.createElement('input');
+            choiceInput.type = 'radio';
+            choiceInput.name = 'choice';
+            choiceInput.value = index;
+            choiceInput.id = `choice${index}`;
+            
+            const choiceLabel = document.createElement('label');
+            choiceLabel.htmlFor = `choice${index}`;
+            choiceLabel.textContent = choice;
+
+            choiceElem.appendChild(choiceInput);
+            choiceElem.appendChild(choiceLabel);
+            choicesElem.appendChild(choiceElem);
+        });
+
+        container.appendChild(questionElem);
+        container.appendChild(choicesElem);
+    }
+
+    function nextQuestion() {
+        const selectedChoice = document.querySelector('input[name="choice"]:checked');
+        if (!selectedChoice) {
+            alert("Veuillez sélectionner une réponse !");
+            return;
+        }
+
+        selectedAnswers.push(parseInt(selectedChoice.value));
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            showSummary();
+        }
+    }
+
+    function showSummary() {
+        document.getElementById('quiz-container').style.display = 'none';
+        const summary = document.getElementById('summary');
+        summary.style.display = 'block';
+
+        const summaryList = document.getElementById('summary-list');
+        summaryList.innerHTML = '';
+
+        let correctAnswers = 0;
+
+        quizData.forEach((q, index) => {
+            const summaryItem = document.createElement('li');
+            summaryItem.innerHTML = `
+                <strong>${q.question}</strong><br>
+                <div style="text-align: left; margin-left: 20%;">
+                    Votre réponse: ${q.choices[selectedAnswers[index]]} - 
+                    ${selectedAnswers[index] === q.correct ? '<span class="correct">Correct</span>' : '<span class="incorrect">Incorrect</span>'}<br>
+                    Bonne réponse: ${q.choices[q.correct]}
+                </div>
+            `;
+            summaryList.appendChild(summaryItem);
+            if (selectedAnswers[index] === q.correct) {
+                correctAnswers++;
+            }
+        });
+
+        document.getElementById('score').textContent = `Score: ${correctAnswers} / ${quizData.length}`;
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        selectedAnswers = [];
+        document.getElementById('summary').style.display = 'none';
+        document.getElementById('quiz-container').style.display = 'block';
+        loadQuestion();
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>
